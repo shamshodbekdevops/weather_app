@@ -145,14 +145,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 OPENWEATHER_API_KEY = get_env('OPENWEATHER_API_KEY')
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = get_env('EMAIL_HOST', 'smtp.gmail.com')
-EMAIL_PORT = int(get_env('EMAIL_PORT', '587'))
-EMAIL_USE_TLS = get_env('EMAIL_USE_TLS', 'True').lower() == 'true'
-EMAIL_HOST_USER = get_env('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = get_env('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = get_env('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
-
 # Session sozlamalari
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 86400  # 24 soat
