@@ -29,14 +29,21 @@ def get_local_time(timezone_offset):
 def get_weather_data(city_name):
     """Joriy ob-havo ma'lumotlari"""
     API_KEY = settings.OPENWEATHER_API_KEY
-    url = f"http://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={API_KEY}&units=metric&lang=uz"
+    url = f"https://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={API_KEY}&units=metric&lang=uz"
     
     try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            return {'success': True, 'data': response.json()}
-        return {'success': False, 'error': 'Shahar topilmadi'}
-    except:
+        response = requests.get(url, timeout=15)
+        payload = response.json()
+
+        if response.status_code != 200:
+            return {'success': False, 'error': payload.get('message', 'Shahar topilmadi')}
+
+        api_code = str(payload.get('cod', '200'))
+        if api_code != '200':
+            return {'success': False, 'error': payload.get('message', 'Shahar topilmadi')}
+
+        return {'success': True, 'data': payload}
+    except requests.RequestException:
         return {'success': False, 'error': 'Xatolik yuz berdi'}
 
 def get_pollution_data(city_name):
@@ -44,16 +51,16 @@ def get_pollution_data(city_name):
     API_KEY = settings.OPENWEATHER_API_KEY
     
     # Avval koordinatalarni olish
-    geo_url = f"http://api.openweathermap.org/geo/1.0/direct?q={city_name}&limit=1&appid={API_KEY}"
+    geo_url = f"https://api.openweathermap.org/geo/1.0/direct?q={city_name}&limit=1&appid={API_KEY}"
     
     try:
-        geo_response = requests.get(geo_url)
+        geo_response = requests.get(geo_url, timeout=15)
         if geo_response.status_code == 200 and geo_response.json():
             lat = geo_response.json()[0]['lat']
             lon = geo_response.json()[0]['lon']
             
-            pollution_url = f"http://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={API_KEY}"
-            pollution_response = requests.get(pollution_url)
+            pollution_url = f"https://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={API_KEY}"
+            pollution_response = requests.get(pollution_url, timeout=15)
             
             if pollution_response.status_code == 200:
                 return {'success': True, 'data': pollution_response.json()}
@@ -65,14 +72,24 @@ def get_pollution_data(city_name):
 def get_forecast_data(city_name):
     """5 kunlik prognoz"""
     API_KEY = settings.OPENWEATHER_API_KEY
-    url = f"http://api.openweathermap.org/data/2.5/forecast?q={city_name}&appid={API_KEY}&units=metric&lang=uz"
+    url = f"https://api.openweathermap.org/data/2.5/forecast?q={city_name}&appid={API_KEY}&units=metric&lang=uz"
     
     try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            return {'success': True, 'data': response.json()}
-        return {'success': False, 'error': 'Prognoz topilmadi'}
-    except:
+        response = requests.get(url, timeout=15)
+        payload = response.json()
+
+        if response.status_code != 200:
+            return {'success': False, 'error': payload.get('message', 'Prognoz topilmadi')}
+
+        api_code = str(payload.get('cod', '200'))
+        if api_code != '200':
+            return {'success': False, 'error': payload.get('message', 'Prognoz topilmadi')}
+
+        if 'city' not in payload or 'list' not in payload:
+            return {'success': False, 'error': 'Prognoz ma\'lumotlari to\'liq emas'}
+
+        return {'success': True, 'data': payload}
+    except requests.RequestException:
         return {'success': False, 'error': 'Xatolik yuz berdi'}
 
 def get_air_quality_info(aqi):

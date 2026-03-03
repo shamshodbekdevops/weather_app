@@ -46,7 +46,7 @@ DEBUG = get_env('DEBUG', 'False').lower() == 'true'
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
-    '*.railway.app',
+    '.railway.app',
     'localhost:8000',
     '8000-localhost',
 ]
@@ -55,6 +55,10 @@ ALLOWED_HOSTS = [
 extra_hosts = get_env('ALLOWED_HOSTS', '')
 if extra_hosts:
     ALLOWED_HOSTS.extend([host.strip() for host in extra_hosts.split(',') if host.strip()])
+
+railway_public_domain = get_env('RAILWAY_PUBLIC_DOMAIN', '').strip()
+if railway_public_domain:
+    ALLOWED_HOSTS.append(railway_public_domain)
 
 ALLOWED_HOSTS = list(set(ALLOWED_HOSTS))  # Dublikatlarni olib tashlash
 
