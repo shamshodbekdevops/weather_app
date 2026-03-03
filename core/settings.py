@@ -2,6 +2,7 @@
 Django settings for core project.
 """
 
+import importlib.util
 import os
 from pathlib import Path
 
@@ -29,18 +30,33 @@ def get_env(name, default=''):
 
 
 load_dotenv(BASE_DIR / '.env')
+HAS_WHITENOISE = importlib.util.find_spec('whitenoise') is not None
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_env('SECRET_KEY')
+SECRET_KEY = get_env('SECRET_KEY', 'django-insecure-development-key-change-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = get_env('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = [host.strip() for host in get_env('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',') if host.strip()]
+# Railway.app uchun ALLOWED_HOSTS sozlamalari
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    '*.railway.app',
+    'localhost:8000',
+    '8000-localhost',
+]
+
+# .env fayldan ALLOWED_HOSTS qo'shish
+extra_hosts = get_env('ALLOWED_HOSTS', '')
+if extra_hosts:
+    ALLOWED_HOSTS.extend([host.strip() for host in extra_hosts.split(',') if host.strip()])
+
+ALLOWED_HOSTS = list(set(ALLOWED_HOSTS))  # Dublikatlarni olib tashlash
 
 
 # Application definition
@@ -58,7 +74,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -66,6 +81,25 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if HAS_WHITENOISE:
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+
+# Production sozlamalari
+if not DEBUG:
+    CSRF_TRUSTED_ORIGINS = [
+        'https://*.railway.app',
+        'http://127.0.0.1:8000',
+        'http://localhost:8000',
+    ]
+    SECURE_SSL_REDIRECT = False  # Railway SSL proxy orqali ishlaydi
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+else:
+    CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000']
 
 ROOT_URLCONF = 'core.urls'
 
@@ -133,9 +167,23 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/4.2/howto/static-files/
+
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
+if HAS_WHITENOISE:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    # WhiteNoise'ni gzip qilishga ruxsat beramiz
+    WHITENOISE_COMPRESSION_OFFLINE = True
+    WHITENOISE_MIMETYPES = {
+        '.js': 'application/javascript',
+        '.css': 'text/css',
+    }
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
