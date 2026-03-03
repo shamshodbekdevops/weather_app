@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}5 Kunlik Prognoz{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-12">
+        {% if forecast_data %}
+        <div class="weather-card p-4">
+            <h2 class="text-center mb-4">
+                {{ forecast_data.city }}, {{ forecast_data.country }} - 5 Kunlik Prognoz
+            </h2>
+            
+            <div class="row">
+                {% for day in forecast_data.forecasts %}
+                <div class="col-md-2 col-6 mb-3">
+                    <div class="text-center p-3 border rounded bg-light">
+                        <h6 class="fw-bold">{{ day.day_name }}</h6>
+                        <small class="text-muted">{{ day.date }}</small>
+                        
+                        <img src="http://openweathermap.org/img/w/{{ day.icon }}.png" 
+                             alt="Weather" class="my-2" style="width: 60px; height: 60px;">
+                        
+                        <h5 class="text-primary">{{ day.avg_temp }}°C</h5>
+                        <small class="text-capitalize">{{ day.description }}</small>
+                        
+                        <div class="mt-2">
+                            <small>⬆️ {{ day.max_temp }}°C</small><br>
+                            <small>⬇️ {{ day.min_temp }}°C</small>
+                        </div>
+                        
+                        <div class="mt-2">
+                            <small>💧 {{ day.humidity }}%</small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% elif error %}
+        <div class="alert alert-warning text-center">
+            <h4><i class="fas fa-info-circle"></i> Ma'lumot</h4>
+            <p>{{ error }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

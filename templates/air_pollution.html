@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Havo Ifoloslanishi{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        {% if pollution_data %}
+        <!-- Asosiy ob-havo -->
+        <div class="weather-card p-4 mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h3>{{ pollution_data.weather.city }}, {{ pollution_data.weather.country }}</h3>
+                    <p class="mb-0">Harorat: {{ pollution_data.weather.temperature }}°C</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <img src="http://openweathermap.org/img/w/{{ pollution_data.weather.icon }}.png" 
+                         alt="Weather" style="width: 80px; height: 80px;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Havo sifati ogohlantirishi -->
+        <div class="weather-card p-4 mb-4">
+            <div class="alert alert-{{ pollution_data.aqi_info.color }} text-center">
+                <h3><i class="fas fa-exclamation-triangle"></i> {{ pollution_data.aqi_info.level }}</h3>
+                <h5 class="mb-2">{{ pollution_data.aqi_info.mask }}</h5>
+                <p class="mb-0">{{ pollution_data.aqi_info.health }}</p>
+                <small>AQI Indeksi: {{ pollution_data.aqi }}/5</small>
+            </div>
+        </div>
+
+        <!-- Ifoloslantiruvchi moddalar -->
+        <div class="weather-card p-4">
+            <h4 class="mb-4"><i class="fas fa-flask"></i> Ifoloslantiruvchi Moddalar</h4>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="p-3 border rounded">
+                        <strong>PM2.5:</strong> {{ pollution_data.components.pm2_5|floatformat:2 }} μg/m³
+                        <small class="text-muted d-block">Mayda zarralar</small>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="p-3 border rounded">
+                        <strong>PM10:</strong> {{ pollution_data.components.pm10|floatformat:2 }} μg/m³
+                        <small class="text-muted d-block">Katta zarralar</small>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="p-3 border rounded">
+                        <strong>CO:</strong> {{ pollution_data.components.co|floatformat:2 }} μg/m³
+                        <small class="text-muted d-block">Uglerod oksidi</small>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="p-3 border rounded">
+                        <strong>NO₂:</strong> {{ pollution_data.components.no2|floatformat:2 }} μg/m³
+                        <small class="text-muted d-block">Azot dioksidi</small>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="p-3 border rounded">
+                        <strong>O₃:</strong> {{ pollution_data.components.o3|floatformat:2 }} μg/m³
+                        <small class="text-muted d-block">Ozon</small>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="p-3 border rounded">
+                        <strong>SO₂:</strong> {{ pollution_data.components.so2|floatformat:2 }} μg/m³
+                        <small class="text-muted d-block">Oltingugurt dioksidi</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% elif error %}
+        <div class="alert alert-warning text-center">
+            <h4><i class="fas fa-info-circle"></i> Ma'lumot</h4>
+            <p>{{ error }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

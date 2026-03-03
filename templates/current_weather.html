@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Joriy Ob-havo{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+
+        {% if weather_data %}
+        <div class="weather-card p-4 text-center">
+                <h2 class="mb-3">{{ weather_data.city }}, {{ weather_data.country }}</h2>
+                <p class="text-muted">
+
+                <i class="fas fa-clock me-1"></i>
+                {{ weather_data.date }} (Mahalliy vaqt)
+
+                </p>
+            <img src="http://openweathermap.org/img/w/{{ weather_data.icon }}.png" 
+                 alt="Weather" class="mb-3" style="width: 100px; height: 100px;">
+            
+            <h1 class="display-1 text-primary mb-2">{{ weather_data.temperature }}°C</h1>
+            <p class="lead text-capitalize">{{ weather_data.description }}</p>
+            <p class="text-muted">His etiladi: {{ weather_data.feels_like }}°C</p>
+            
+            <div class="row mt-4">
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <i class="fas fa-tint fa-2x text-info mb-2"></i>
+                        <h5>{{ weather_data.humidity }}%</h5>
+                        <small>Namlik</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <i class="fas fa-wind fa-2x text-success mb-2"></i>
+                        <h5>{{ weather_data.wind_speed }} m/s</h5>
+                        <small>Shamol</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <i class="fas fa-compress-alt fa-2x text-warning mb-2"></i>
+                        <h5>{{ weather_data.pressure }} hPa</h5>
+                        <small>Bosim</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <i class="fas fa-thermometer-half fa-2x text-danger mb-2"></i>
+                        <h5>{{ weather_data.feels_like }}°C</h5>
+                        <small>His etiladi</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% elif error %}
+        <div class="alert alert-danger text-center">
+            <h4><i class="fas fa-exclamation-triangle"></i> Xatolik</h4>
+            <p>{{ error }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
