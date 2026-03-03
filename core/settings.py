@@ -134,12 +134,22 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Railway PostgreSQL yoki local SQLite
+DATABASE_URL = get_env('DATABASE_URL', '')
+if DATABASE_URL:
+    # PostgreSQL (Railway production)
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
     }
-}
+else:
+    # SQLite (local development)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -202,7 +212,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 OPENWEATHER_API_KEY = get_env('OPENWEATHER_API_KEY')
 
-# Session sozlamalari
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+# Session sozlamalari (Cookie-based for Railway compatibility)
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 SESSION_COOKIE_AGE = 86400  # 24 soat
 SESSION_SAVE_EVERY_REQUEST = True  # Har so'rovda session yangilansin
+SESSION_COOKIE_HTTPONLY = True  # XSS himoyasi
+SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF himoyasi
