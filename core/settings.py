@@ -89,18 +89,19 @@ MIDDLEWARE = [
 if HAS_WHITENOISE:
     MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
+# CSRF trusted originlar (DEBUG holatidan qat'i nazar)
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.railway.app',
+    'https://*.up.railway.app',
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+]
+
+if railway_public_domain:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{railway_public_domain}')
+
 # Production sozlamalari
 if not DEBUG:
-    CSRF_TRUSTED_ORIGINS = [
-        'https://*.railway.app',
-        'https://*.up.railway.app',
-        'http://127.0.0.1:8000',
-        'http://localhost:8000',
-    ]
-
-    if railway_public_domain:
-        CSRF_TRUSTED_ORIGINS.append(f'https://{railway_public_domain}')
-
     SECURE_SSL_REDIRECT = False  # Railway SSL proxy orqali ishlaydi
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_HSTS_SECONDS = 31536000
@@ -108,8 +109,6 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-else:
-    CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000']
 
 ROOT_URLCONF = 'core.urls'
 
